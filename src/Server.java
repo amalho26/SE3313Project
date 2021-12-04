@@ -9,22 +9,21 @@ class Server {
 
 
     private static final long serialVersionUID = 1L;
-    private static Map<String, Socket> allClients = new ConcurrentHashMap<>(); // keeps the mapping of all the
-    // usernames used and their socket connections
-    private static Set<String> activeUserSet = new HashSet<>(); // this set keeps track of all the active users
+    private static Map<String, Socket> allClients = new ConcurrentHashMap<>();
+    private static Set<String> activeUserSet = new HashSet<>();
     private static int port = 8818;
     private JFrame frame;
     private ServerSocket serverSocket;
     private JTextArea serverMsg;
     private JList activeClientList;
-    private DefaultListModel<String> activeDlm = new DefaultListModel<String>(); // keeps list of active users for display on UI
+    private DefaultListModel<String> activeDlm = new DefaultListModel<String>();
 
 
-    public static void main(String[] args) {  // functions starts here
+    public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                Server window = new Server();  // object creation
-                window.frame.setVisible(true); // make jframe visible
+                Server window = new Server();
+                window.frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -67,7 +66,7 @@ class Server {
                         new MsgRead(cSocket, id).start(); // create a thread to read messages
                         new PrepareCLientList().start(); //create a thread to update all the active clients
                     }
-                } catch (IOException ioE) {  // throw any exception occurs
+                } catch (IOException ioE) {
                     ioE.printStackTrace();
                 }
             }
@@ -88,11 +87,11 @@ class Server {
             while (!allClients.isEmpty()) {  // if allUserList is not empty
                 try {
                     String msg = new DataInputStream(s.getInputStream()).readUTF(); // read message from client
-                    String[] msgList = msg.split(":"); //custom identifier
-                    // appended actionToBeTaken:clients_for_receiving_msg:message
-                    if (msgList[0].equalsIgnoreCase("multicast")) { // if action is multicast then send messages to selected active users
+                    String[] msgList = msg.split(":");
+
+                    if (msgList[0].equalsIgnoreCase("multicast")) {
                         String[] sendToList = msgList[1].split(", "); //this variable contains list of clients which will receive message
-                        for (String usr : sendToList) { // for every user send message
+                        for (String usr : sendToList) {
 
                                 if (activeUserSet.contains(usr)) { // check again if user is active then send the message
                                     new DataOutputStream(((Socket) allClients.get(usr)).getOutputStream())
@@ -109,17 +108,17 @@ class Server {
                             }
                         }
                     } else if (msgList[0].equalsIgnoreCase("exit")) { // if a client's process is killed then notify other clients
-                        activeUserSet.remove(cId); // remove that client from active usre set
-                        serverMsg.append(cId + " disconnected.\n"); // print message on server message board
+                        activeUserSet.remove(cId);
+                        serverMsg.append(cId + " disconnected.\n");
 
-                        new PrepareCLientList().start(); // update the active and all user list on UI
+                        new PrepareCLientList().start();
 
-                        Iterator<String> itr = activeUserSet.iterator(); // iterate over other active users
+                        Iterator<String> itr = activeUserSet.iterator();
                         while (itr.hasNext()) {
                             String usrName2 = (String) itr.next();
-                            if (!usrName2.equalsIgnoreCase(cId)) { // we don't need to send this message to ourself
+                            if (!usrName2.equalsIgnoreCase(cId)) {
                                 try {
-                                    new DataOutputStream(((Socket) allClients.get(usrName2)).getOutputStream()).writeUTF(cId + " disconnected."); // notify all other active user for disconnection of a user
+                                    new DataOutputStream(((Socket) allClients.get(usrName2)).getOutputStream()).writeUTF(cId + " disconnected.");
                                 } catch (Exception e) { // throw errors
                                     e.printStackTrace();
                                 }
@@ -141,12 +140,12 @@ class Server {
         public void run() {
             try {
                 String ids = "";
-                Iterator itr = activeUserSet.iterator(); // iterate over all active users
-                while (itr.hasNext()) { // prepare string of all the users
+                Iterator itr = activeUserSet.iterator();
+                while (itr.hasNext()) {
                     String key = (String) itr.next();
                     ids += key + ",";
                 }
-                if (ids.length() != 0) { //trim list
+                if (ids.length() != 0) {
                     ids = ids.substring(0, ids.length() - 1);
                 }
                 itr = activeUserSet.iterator();

@@ -47,9 +47,9 @@ class Client extends JFrame {
         initialize();
         this.id = id;
         try {
-            frame.setTitle("Client: " + id); // set title of UI
-            dm = new DefaultListModel<String>(); // show active users
-            clientActiveUsersList.setModel(dm);// show active users on JList
+            frame.setTitle("Client: " + id);
+            dm = new DefaultListModel<String>();
+            clientActiveUsersList.setModel(dm);
             input = new DataInputStream(s.getInputStream()); //set I/O streams
             output = new DataOutputStream(s.getOutputStream());
             new Read().start(); //create a new thread for reading messages
@@ -63,15 +63,15 @@ class Client extends JFrame {
         public void run() {
             while (true) {
                 try {
-                    String m = input.readUTF();  // read message from server, this will contain :;.,/=<comma seperated clientsIds
-                    if (m.contains(":;.,/=")) { // prefix(i know its random)
+                    String m = input.readUTF();
+                    if (m.contains(":;.,/=")) {
                         m = m.substring(6); // comma separated all active user ids
-                        dm.clear(); // clear the list before inserting fresh elements
+                        dm.clear();
                         StringTokenizer st = new StringTokenizer(m, ","); // split all the clientIds and add to dm below
                         while (st.hasMoreTokens()) {
                             String u = st.nextToken();
-                            if (!id.equals(u)) //don't add client's own id
-                                dm.addElement(u); // add aactive users on display
+                            if (!id.equals(u))
+                                dm.addElement(u);
                         }
                     } else {
                         clientMessageBoard.append("" + m + "\n"); //otherwise print on the clients message board
